@@ -7,11 +7,66 @@
     <title>Movies!</title>
     <style>
         /* Part 3: Your styling goes here */
+
+        body {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            background-color: rgb(73, 8, 8);
+            padding: 20px;
+        }
+
+        .genre {
+            background-color: rgb(255, 255, 255); /* Hintergrundfarbe */
+            color: black; /* Textfarbe */
+            padding: 5px 12px; /* Innenabstand */
+            border-radius: 4px; /* Abgerundete Ecken */
+            margin-right: 8px; /* Abstand zwischen den Tags */
+            display: inline-block; /* korrekt berechnet padding */
+            font-size: 0.85em; /* mach Schrift kleiner */
+            border: 2px solid black; /* Umrandung */
+        }
+        
+        article { /* Jeden Film wie eine Karte aussehen lassen */
+            background-color: rgb(214, 181, 109);
+            border-radius: 12px;
+            margin-bottom: 30px; /* Abstand zwischen den Filmen */
+            margin-left: auto; /* schiebt element in die mitte */
+            margin-right: auto;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0,1); /* Schatten für Tiefe  */
+            max-width: 800px; /* Begrenzt Breite auf dem Desktop */
+            text-align: center; /* zentriert allen text und inline-Elemente */
+        }
+
+        h1 {
+            font-weight: bold;
+            margin-top: 0;
+            color: #333;
+        }
+
+        img {
+            max-width: 100%; /* das Bild abhalten zu groß zu werden */
+            height: auto; /* Seitenverhältnisse beibehalten */
+            border-radius: 8px;
+            display: block; /* positionierung */
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        ul {
+            list-style: none; /* entfernt die punkte */
+            padding: 0; /* entfernt standard einrücken */
+            margin-bottom: 20px; /* Abstand zwischen den Listen */
+        }
+
+        li {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
     </style>
     <script>
-        function reverseString(s) {
-            return s.split("").reverse().join("");
-        }
+        
 
         window.onload = function () {
             const xhr = new XMLHttpRequest()
@@ -19,7 +74,121 @@
                 const bodyElement = document.querySelector("body")
                 if (xhr.status == 200) {
 		            /* Part 2: Build the HTML elements here and append them to the body */ 
-                    bodyElement.append(reverseString(xhr.responseText))
+
+                    // JSON in Array umwandeln (JSON.parse macht aus Text-String ein nutzbares JavaScript-Array mit Objekten)
+                    const movies = JSON.parse(xhr.responseText);
+
+                    // Loop über Array (Geht nacheinander jeden Film im Array durch)
+                    for (const movie of movies) {
+
+                        // HTML erstellen
+                        const movieArticle = document.createElement("article");
+
+                        // 1.Titel als Überschrift machen
+                        const titleElement = document.createElement("h1");
+                        titleElement.textContent = movie.Title;
+                        movieArticle.append(titleElement);
+
+                        // 2.Poster
+                        const posterElement = document.createElement("img");
+                        posterElement.src = movie.Poster;
+                        posterElement.alt = movie.Title;
+                        movieArticle.append(posterElement);
+                        
+                        // 3.Released + Runtime
+                        const makeParagraph1 = document.createElement("p"); // Einen Absatz schaffen
+
+                        const releaseSpan = document.createElement("span"); // Span für Release
+                        releaseSpan.textContent = movie.Released;
+
+                        const runtimeSpan = document.createElement("span"); // Span für Runtime
+                        runtimeSpan.textContent = movie.Runtime + " min";
+
+                        makeParagraph1.append(releaseSpan, " | ", runtimeSpan); // Zusammenfügen
+
+                        movieArticle.append(makeParagraph1); // Hinzufügen
+
+                        // 4.Genres
+                        const genreParagraph = document.createElement("p"); // Abteil für die Genre Tags
+                        
+                        for (const genre of movie.Genres) {
+                            const genreTag = document.createElement("span");
+                            genreTag.textContent = genre;
+
+                            genreTag.classList.add("genre"); //genre zuordnen fürs CSS-Styling
+
+                            genreParagraph.append(genreTag);
+                        }
+
+                        movieArticle.append(genreParagraph);
+
+                        // 5.Plot
+                        const plotElement = document.createElement("p");
+                        plotElement.textContent = movie.Plot;
+                        movieArticle.append(plotElement);
+
+                        // 6.Directors
+                        const directorsHeader = document.createElement("h3"); // Überschrift erstellen
+                        directorsHeader.textContent = "Directors";
+                        movieArticle.append(directorsHeader);
+
+                        const directorsList = document.createElement("ul"); // Lister erstellen
+
+                        for (const directors of movie.Directors) {
+                            const directorsElement = document.createElement("li"); // für jeden writer ein listen element erstellen
+                            directorsElement.textContent = directors;
+                            directorsList.append(directorsElement);
+                        }
+
+                        movieArticle.append(directorsList);
+
+                        // 7.Writers
+                        const writersHeader = document.createElement("h3");
+                        writersHeader.textContent = "Writers";
+                        movieArticle.append(writersHeader);
+
+                        const writersList = document.createElement("ul");
+
+                        for (const writers of movie.Writers) {
+                            const writersElement = document.createElement("li");
+                            writersElement.textContent = writers;
+                            writersList.append(writersElement);
+                        }
+                        
+                        movieArticle.append(writersList);
+
+                        // 8.Actors
+                        const actorsHeader = document.createElement("h3");
+                        actorsHeader.textContent = "Actors";
+                        movieArticle.append(actorsHeader);
+
+                        const actorsList = document.createElement("ul");
+
+                        for (const actors of movie.Actors) {
+                            const actorsElement = document.createElement("li");
+                            actorsElement.textContent = actors;
+                            actorsList.append(actorsElement);
+                        }
+
+                        movieArticle.append(actorsList);
+                        
+                        // 9.Metascore + imdbRating
+                        const makeParagraph2 = document.createElement("p");
+
+                        const metaSpan = document.createElement("span");
+                        metaSpan.textContent = movie.Metascore;
+
+                        const imdbSpan = document.createElement("span");
+                        imdbSpan.textContent = movie.imdbRating;
+
+                        makeParagraph2.append("Metascore: ", metaSpan, " | ", "imdbRating: ", imdbSpan);
+
+                        movieArticle.append(makeParagraph2);
+
+
+                        //Movie Element them body hinzufügen
+                        bodyElement.append(movieArticle);
+                    }
                 } else {
                     bodyElement.append("Daten konnten nicht geladen werden, Status " + xhr.status + " - " + xhr.statusText)
                 }
